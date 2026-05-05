@@ -73,7 +73,7 @@ export class CodexTerminalProvider implements TerminalQueryProvider {
   ): string[] {
     const mcpApprovalOverrides = [
       "-c",
-      'mcp_servers.mindmap.default_tools_approval_mode="approve"',
+      'mcp_servers.blueprint.default_tools_approval_mode="approve"',
     ];
     const modeArgs = mode === "ask" ? [] : ["--sandbox", "workspace-write"];
     if (providerSessionId) {

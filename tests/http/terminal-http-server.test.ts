@@ -297,7 +297,7 @@ describe("terminal HTTP bridge", () => {
       args: [
         "exec",
         "-c",
-        'mcp_servers.mindmap.default_tools_approval_mode="approve"',
+        'mcp_servers.blueprint.default_tools_approval_mode="approve"',
         "--json",
         "Inspect the project",
       ],
@@ -385,7 +385,7 @@ describe("terminal HTTP bridge", () => {
     expect(captured[1]?.args).toEqual([
       "exec",
       "-c",
-      'mcp_servers.mindmap.default_tools_approval_mode="approve"',
+      'mcp_servers.blueprint.default_tools_approval_mode="approve"',
       "--sandbox",
       "workspace-write",
       "resume",

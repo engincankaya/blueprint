@@ -239,7 +239,7 @@ describe("terminal query service", () => {
       args: [
         "exec",
         "-c",
-        'mcp_servers.mindmap.default_tools_approval_mode="approve"',
+        'mcp_servers.blueprint.default_tools_approval_mode="approve"',
         "--sandbox",
         "workspace-write",
         "--json",
@@ -313,7 +313,7 @@ describe("terminal query service", () => {
     expect(captured[0]?.args).toEqual([
       "exec",
       "-c",
-      'mcp_servers.mindmap.default_tools_approval_mode="approve"',
+      'mcp_servers.blueprint.default_tools_approval_mode="approve"',
       "--json",
       "Explain only",
     ]);
@@ -691,7 +691,7 @@ describe("terminal query service", () => {
     expect(captured[0]?.args).toEqual([
       "exec",
       "-c",
-      'mcp_servers.mindmap.default_tools_approval_mode="approve"',
+      'mcp_servers.blueprint.default_tools_approval_mode="approve"',
       "--sandbox",
       "workspace-write",
       "--json",
@@ -700,7 +700,7 @@ describe("terminal query service", () => {
     expect(captured[1]?.args).toEqual([
       "exec",
       "-c",
-      'mcp_servers.mindmap.default_tools_approval_mode="approve"',
+      'mcp_servers.blueprint.default_tools_approval_mode="approve"',
       "--sandbox",
       "workspace-write",
       "resume",
