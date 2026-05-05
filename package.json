@@ -1,0 +1,48 @@
+{
+  "name": "mindmap-mcp-server",
+  "version": "0.1.0",
+  "description": "MCP server for architecture-aware mind map generation using Tree-sitter",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "mindmap-mcp-server": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc && node scripts/copy-grammars.js && node scripts/add-shebang.js",
+    "dev": "tsc --watch",
+    "start": "node dist/index.js",
+    "start:server": "node dist/server/index.js",
+    "blueprint:post-commit": "node dist/cli/blueprint-post-commit.js",
+    "lint": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "fast-glob": "^3.3.3",
+    "uuid": "^11.1.0",
+    "web-tree-sitter": "^0.24.4",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/uuid": "^10.0.0",
+    "tree-sitter-cli": "^0.24.4",
+    "tree-sitter-go": "^0.23.4",
+    "tree-sitter-java": "^0.23.5",
+    "tree-sitter-python": "^0.23.6",
+    "tree-sitter-rust": "^0.23.2",
+    "tree-sitter-typescript": "^0.23.2",
+    "tree-sitter-wasms": "^0.1.13",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
