@@ -1,13 +1,24 @@
 import { mkdir, mkdtemp, writeFile } from "node:fs/promises";
+import { Readable } from "node:stream";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import type { IncomingMessage } from "node:http";
 import { describe, expect, it } from "vitest";
 import { BlueprintGroupService } from "../../src/services/blueprint-group-service.js";
+import { initServices } from "../../src/services/init-services.js";
 import {
+  createApiRouter,
   handleBlueprintGroupDetailRequest,
   handleBlueprintGroupsRequest,
 } from "../../src/server/routes/index.js";
 import { type BlueprintOutput } from "../../src/tools/compose/compose.types.js";
+
+function createRequest(method: string, body?: unknown): IncomingMessage {
+  const chunks = body === undefined ? [] : [JSON.stringify(body)];
+  const request = Readable.from(chunks) as IncomingMessage;
+  request.method = method;
+  return request;
+}
 
 async function writeBlueprintFixture(
   output: BlueprintOutput = createBlueprintOutput(),
@@ -156,6 +167,26 @@ function createBlueprintOutput(): BlueprintOutput {
 }
 
 describe("blueprint group HTTP handlers", () => {
+  it("does not route removed terminal chat endpoints", async () => {
+    const router = createApiRouter(initServices({}));
+    const projectRoot = await writeBlueprintFixture();
+
+    await expect(
+      router.dispatch(
+        createRequest("POST", { prompt: "hello" }),
+        new URL("http://local.request/api/terminal/query"),
+        projectRoot,
+      ),
+    ).resolves.toBeUndefined();
+    await expect(
+      router.dispatch(
+        createRequest("POST", { prompt: "hello" }),
+        new URL("http://local.request/api/terminal/query/stream"),
+        projectRoot,
+      ),
+    ).resolves.toBeUndefined();
+  });
+
   it("returns a lightweight group overview with connections", async () => {
     const projectRoot = await writeBlueprintFixture();
     await writeRuntimeGroupDoc(projectRoot);

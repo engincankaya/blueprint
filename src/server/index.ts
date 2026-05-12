@@ -5,7 +5,7 @@ import {
   createApiServerContext,
   type ApiServerOptions,
 } from "./context.js";
-import { createApiRouter, handleTerminalQueryStreamRequest } from "./routes/index.js";
+import { createApiRouter, handleBlueprintEventsRequest } from "./routes/index.js";
 import {
   HttpStatusCode,
   setCorsHeaders,
@@ -28,14 +28,8 @@ export function createApiServer(options: ApiServerOptions): Server {
 
     try {
       const url = parseIncomingRequestUrl(request.url);
-      if (request.method === "POST" && url.pathname === "/api/terminal/query/stream") {
-        await handleTerminalQueryStreamRequest(
-          context.projectRoot,
-          request,
-          response,
-          context.services.terminalQuery,
-          context.logger,
-        );
+      if (request.method === "GET" && url.pathname === "/api/blueprint/events") {
+        handleBlueprintEventsRequest(context.projectRoot, request, response);
         return;
       }
 
@@ -78,8 +72,8 @@ if (isMainModule()) {
   });
 
   server.listen(port, host, () => {
-    console.error(`Terminal AI HTTP bridge listening on http://${host}:${port}`);
-    console.error(`Terminal AI project root: ${projectRoot}`);
+    console.error(`Blueprint HTTP server listening on http://${host}:${port}`);
+    console.error(`Blueprint project root: ${projectRoot}`);
     if (staticRoot) {
       console.error(`Serving frontend static files from: ${staticRoot}`);
     }
@@ -90,11 +84,15 @@ function resolveConfiguredProjectRoot(): string {
   return resolve(process.env.TERMINAL_AI_PROJECT_ROOT ?? process.cwd());
 }
 
-function resolveConfiguredStaticRoot(): string | undefined {
+export function resolveConfiguredStaticRoot(): string | undefined {
   if (process.env.TERMINAL_AI_STATIC_ROOT) {
     return resolve(process.env.TERMINAL_AI_STATIC_ROOT);
   }
-  return resolve(fileURLToPath(new URL("../../frontend", import.meta.url)));
+  const moduleDir = fileURLToPath(new URL(".", import.meta.url));
+  if (moduleDir.endsWith("/src/server/")) {
+    return resolve(moduleDir, "../../dist/frontend");
+  }
+  return resolve(moduleDir, "../frontend");
 }
 
 function isMainModule(): boolean {

@@ -30,11 +30,11 @@
   ],
   "license": "MIT",
   "scripts": {
-    "build": "tsc && node scripts/copy-grammars.js && node scripts/add-shebang.js",
+    "build": "npm run clean && tsc && npm run build:frontend && node scripts/copy-grammars.js && node scripts/add-shebang.js",
+    "build:frontend": "tsc -p frontend/tsconfig.json --noEmit && vite build --config frontend/vite.config.ts",
     "dev": "tsc --watch",
     "start": "node dist/index.js",
     "start:server": "node dist/server/index.js",
-    "blueprint:post-commit": "node dist/cli/blueprint-post-commit.js",
     "lint": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -49,8 +49,20 @@
     "zod": "^3.24.0"
   },
   "devDependencies": {
+    "@vitejs/plugin-react": "^5.1.1",
     "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
     "@types/uuid": "^10.0.0",
+    "autoprefixer": "^10.4.21",
+    "clsx": "^2.1.1",
+    "framer-motion": "^11.15.0",
+    "lucide-react": "^0.469.0",
+    "postcss": "^8.5.6",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwind-merge": "^2.6.0",
+    "tailwindcss": "^3.4.18",
     "tree-sitter-cli": "^0.24.4",
     "tree-sitter-go": "^0.23.4",
     "tree-sitter-java": "^0.23.5",
@@ -59,6 +71,7 @@
     "tree-sitter-typescript": "^0.23.2",
     "tree-sitter-wasms": "^0.1.13",
     "typescript": "^5.7.0",
+    "vite": "^7.2.7",
     "vitest": "^3.0.0"
   },
   "engines": {

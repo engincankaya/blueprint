@@ -86,6 +86,19 @@ Do not edit `blueprint-output.json` manually.
 | `blueprint.refresh` | Refreshes Blueprint state from the current filesystem snapshot. |
 | `blueprint.group.update` | Assigns unassigned files or manages empty groups after refresh. |
 
+## Frontend UI
+
+The optional HTTP server serves a lightweight Vite/React Blueprint UI from the same Node process:
+
+```bash
+npm run build
+TERMINAL_AI_PROJECT_ROOT=/path/to/project npm run start:server
+```
+
+Open `http://127.0.0.1:8787/`. The UI reads Blueprint data from `/api/blueprint/groups` and `/api/blueprint/groups/:id`, and listens to `/api/blueprint/events` for live refresh notifications.
+
+The UI does not include chat or LLM execution. Vibecoding stays in the terminal/MCP client.
+
 ## Language Support
 
 Blueprint uses Tree-sitter analysis for:
