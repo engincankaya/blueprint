@@ -7,9 +7,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // Grammar directory is dist/grammars in production. In source/test execution,
-// fall back to the same built directory if it exists.
+// fall back to package-installed WASM grammars or the same built directory.
 const GRAMMARS_DIR_CANDIDATES = [
   join(__dirname, "..", "grammars"),
+  join(__dirname, "..", "..", "node_modules", "tree-sitter-wasms", "out"),
   join(__dirname, "..", "..", "dist", "grammars"),
 ];
 
