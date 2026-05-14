@@ -1,10 +1,11 @@
 {
-  "name": "blueprint-mcp-server",
-  "version": "0.1.0",
+  "name": "blueprint-mcp",
+  "version": "0.1.1",
   "description": "MCP server for architecture-aware Blueprint memory using Tree-sitter",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
+    "blueprint-mcp": "dist/index.js",
     "blueprint-mcp-server": "dist/index.js",
     "blueprint": "dist/cli/index.js"
   },
