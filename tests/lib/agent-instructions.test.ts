@@ -13,7 +13,7 @@ describe("patchAgentsInstructions", () => {
 
     expect(result.changed).toBe(true);
     expect(content).toContain("BEGIN:blueprint-mcp-agent-rules");
-    expect(content).toContain("node_modules/blueprint-mcp-server/docs/agents.md");
+    expect(content).toContain("node_modules/blueprint-mcp/docs/agents.md");
     expect(content).toContain("`.blueprint/brief.md`");
   });
 

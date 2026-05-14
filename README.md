@@ -27,6 +27,14 @@ npm install -g blueprint-mcp
 
 Requires Node.js 20 or newer.
 
+Global installation makes the `blueprint` command available in your shell:
+
+```bash
+blueprint open --watch
+```
+
+If you install Blueprint only inside a project with `npm install blueprint-mcp`, run it through an npm script or `node_modules/.bin`; local npm binaries are not added to your interactive shell path automatically.
+
 ## MCP Configuration
 
 Add Blueprint to your MCP client:
@@ -57,7 +65,7 @@ Blueprint writes documentation in English by default. To use another language, a
 
 ```txt
 Create a Turkish blueprint for this project.
-``
+```
 
 ## What It Creates
 

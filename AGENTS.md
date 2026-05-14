@@ -195,7 +195,7 @@ This project uses Blueprint MCP for local architecture memory.
 
 Before broad codebase exploration, read:
 
-`node_modules/blueprint-mcp-server/docs/agents.md`
+`node_modules/blueprint-mcp/docs/agents.md`
 
 If Blueprint memory exists, start with:
 

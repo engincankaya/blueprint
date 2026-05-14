@@ -1,8 +1,8 @@
 import { spawn } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, realpathSync } from "node:fs";
 import { readdir, stat } from "node:fs/promises";
 import { join, resolve } from "node:path";
-import { pathToFileURL } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import {
   blueprintDir,
   blueprintOutputPath,
@@ -258,7 +258,18 @@ function isMissingFileError(error: unknown): boolean {
     && (error as { code: unknown }).code === "ENOENT";
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).toString()) {
+function isCliEntrypoint(): boolean {
+  if (!process.argv[1]) {
+    return false;
+  }
+  try {
+    return realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url));
+  } catch {
+    return import.meta.url === pathToFileURL(process.argv[1]).toString();
+  }
+}
+
+if (isCliEntrypoint()) {
   runBlueprintCli({
     argv: process.argv.slice(2),
     cwd: process.cwd(),

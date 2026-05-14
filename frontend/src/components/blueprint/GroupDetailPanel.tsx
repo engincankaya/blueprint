@@ -218,6 +218,25 @@ function SectionContent({ content }: { content: string }) {
   )
 }
 
+function SnapshotHeaderContent({ content }: { content: string }) {
+  const blocks = parseMarkdown(content)
+  const items = blocks.flatMap((block) => {
+    if (block.type === 'list') return block.items
+    if (block.type === 'paragraph') return [block.content]
+    return []
+  }).filter(item => item.trim().length > 0)
+
+  return (
+    <ul className="space-y-1.5 rounded-md border-l-2 border-amber-500/45 bg-zinc-900/45 px-4 py-3 text-[13px] leading-5 text-zinc-300 shadow-sm shadow-black/10">
+      {items.map((item, index) => (
+        <li key={index} className="ml-4 list-disc marker:text-amber-400/70">
+          {renderInlineMarkdown(item)}
+        </li>
+      ))}
+    </ul>
+  )
+}
+
 // ─── Section Card ─────────────────────────────────────────────────────────────
 
 function SectionCard({
@@ -476,11 +495,11 @@ export function GroupDetailPanel({ detail }: GroupDetailPanelProps) {
             )}
             <h1 className="text-base font-semibold text-zinc-100">{group.name}</h1>
 
-            {/* Quick Summary quote */}
+            {/* Quick Summary */}
             {s.snapshot && (
-              <p className="mt-2 text-sm italic leading-6 text-zinc-400">
-                &ldquo;{s.snapshot}&rdquo;
-              </p>
+              <div className="mt-3 max-w-4xl">
+                <SnapshotHeaderContent content={s.snapshot} />
+              </div>
             )}
 
             {/* Meta */}
@@ -546,20 +565,18 @@ export function GroupDetailPanel({ detail }: GroupDetailPanelProps) {
             {/* ── OVERVIEW ─────────────────────────────────────── */}
             {activeSubTab === 'overview' && (
               <div className="space-y-3">
-                {s.snapshot ? (
-                  <SectionCard title="Snapshot" content={s.snapshot} defaultOpen index={0} />
-                ) : group.summary ? (
+                {!s.snapshot && group.summary ? (
                   <div className="rounded-lg border border-zinc-700/30 bg-zinc-900/40 px-4 py-3">
                     <p className="text-sm leading-6 text-zinc-400">{group.summary}</p>
                   </div>
                 ) : null}
 
                 {s.responsibilities && (
-                  <SectionCard title="Sorumluluklar" content={s.responsibilities} defaultOpen index={1} />
+                  <SectionCard title="Sorumluluklar" content={s.responsibilities} defaultOpen index={0} />
                 )}
 
                 {s.keyFiles && (
-                  <SectionCard title="Ana Dosyalar" content={s.keyFiles} index={2} />
+                  <SectionCard title="Ana Dosyalar" content={s.keyFiles} index={1} />
                 )}
 
                 {s.extensionOpenQuestions && (
@@ -572,7 +589,7 @@ export function GroupDetailPanel({ detail }: GroupDetailPanelProps) {
                     >
                       Açık Sorular
                     </motion.p>
-                    <OpenQuestionsCards content={s.extensionOpenQuestions} startIndex={3} />
+                    <OpenQuestionsCards content={s.extensionOpenQuestions} startIndex={2} />
                   </div>
                 )}
 
