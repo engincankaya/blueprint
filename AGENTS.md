@@ -5,14 +5,19 @@
 This project uses Blueprint memory. Blueprint files are the first orientation
 layer for every task, but they are not the source of truth.
 
+If the `.blueprint` directory or `.blueprint/brief.md` does not exist, do not
+continue as if Blueprint memory is available. Ask the user whether they want to
+create Blueprint memory for the project before following the Blueprint reading
+workflow.
+
 Before working on any task:
 
-1. Read `blueprint/brief.md` for the project map.
+1. Read `.blueprint/brief.md` for the project map.
 2. Identify the group or groups that may be relevant.
 3. Search the Blueprint Markdown docs with task-specific keywords before reading
    source code.
 4. Read only the smallest useful set of group docs, usually 1-3 files under
-   `blueprint/groups/*.md`.
+   `.blueprint/groups/*.md`.
 5. Inspect source code only where the docs are insufficient, where behavior must
    be verified, or where edits are needed.
 
@@ -20,9 +25,9 @@ Do not read the whole repository unless the task truly requires it.
 
 ## Blueprint Reading Strategy
 
-After reading `blueprint/brief.md`, do not immediately read every candidate
-group document end to end. First use targeted search over `blueprint/brief.md`
-and `blueprint/groups/*.md` with task keywords.
+After reading `.blueprint/brief.md`, do not immediately read every candidate
+group document end to end. First use targeted search over `.blueprint/brief.md`
+and `.blueprint/groups/*.md` with task keywords.
 
 Search for:
 
@@ -66,9 +71,9 @@ When inspecting source code, avoid broad repository reads. Prefer:
 
 Blueprint memory is an orientation layer, not material to consume broadly.
 
-After reading `blueprint/brief.md`:
+After reading `.blueprint/brief.md`:
 
-1. Run targeted `rg` over `blueprint/brief.md` and `blueprint/groups/*.md`.
+1. Run targeted `rg` over `.blueprint/brief.md` and `.blueprint/groups/*.md`.
 2. Do not open whole group docs or large line ranges by default.
 3. Prefer reading narrow line windows around search hits, usually 20-60 lines.
 4. Use the stable section headings to jump directly to the part you need, such
@@ -86,14 +91,14 @@ After reading `blueprint/brief.md`:
 
 Default budget:
 
-- `blueprint/brief.md`: always read.
+- `.blueprint/brief.md`: always read.
 - Blueprint Markdown search: always prefer early.
 - Group docs: read targeted excerpts first.
 - Full group docs: exception, not default.
 
 ## Group Doc Template
 
-Files under `blueprint/groups/*.md` follow a stable template. Read the sections
+Files under `.blueprint/groups/*.md` follow a stable template. Read the sections
 intentionally:
 
 - `Snapshot` gives quick orientation.
@@ -120,7 +125,7 @@ Blueprint files are orientation, not authority.
 
 ## How To Use Blueprint
 
-Use `blueprint/brief.md` to find:
+Use `.blueprint/brief.md` to find:
 
 - project overview
 - architectural groups
@@ -129,7 +134,7 @@ Use `blueprint/brief.md` to find:
 - entrypoints
 - group documentation paths
 
-Use `blueprint/groups/*.md` to understand the relevant architecture before
+Use `.blueprint/groups/*.md` to understand the relevant architecture before
 editing source code. Do not duplicate large source details into Blueprint docs;
 record stable architectural facts, contracts, pitfalls, and test guidance.
 
@@ -165,19 +170,35 @@ Blueprint before running maintenance.
 
 When a permanent change adds, moves, deletes, or substantially changes files:
 
-- run `blueprint.refresh` so `blueprint/blueprint-output.json` and
-  `blueprint/refresh-scan.json` are updated from the current filesystem
+- run `blueprint.refresh` so `.blueprint/blueprint-output.json` and
+  `.blueprint/refresh-scan.json` are updated from the current filesystem
   snapshot
 - if `blueprint.refresh` reports unassigned files or empty group candidates,
   use `blueprint.group.update` for those validated group decisions
 - do not use `blueprint.group.update` for updated files that already belong to a
   real group; refresh has already updated deterministic JSON for those files
-- update only the relevant `blueprint/groups/*.md` files when architectural
+- update only the relevant `.blueprint/groups/*.md` files when architectural
   responsibilities, contracts, pitfalls, or test guidance changed
-- keep `blueprint/brief.md` aligned with the current Blueprint output through
+- keep `.blueprint/brief.md` aligned with the current Blueprint output through
   the project tools that generate it; do not hand-edit it as a substitute for
   deterministic maintenance
 - avoid duplicating full source details in Markdown
 - record stable architectural facts, contracts, pitfalls, and test guidance
-- do not edit `blueprint/blueprint-output.json` manually; use the MCP tools for
+- do not edit `.blueprint/blueprint-output.json` manually; use the MCP tools for
   deterministic JSON maintenance
+
+<!-- BEGIN:blueprint-mcp-agent-rules -->
+
+## Blueprint MCP
+
+This project uses Blueprint MCP for local architecture memory.
+
+Before broad codebase exploration, read:
+
+`node_modules/blueprint-mcp-server/docs/agents.md`
+
+If Blueprint memory exists, start with:
+
+`.blueprint/brief.md`
+
+<!-- END:blueprint-mcp-agent-rules -->
