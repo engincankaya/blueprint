@@ -3,6 +3,7 @@
  */
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
+import { groupDocsDir, groupDocsRelativePath } from "../../lib/blueprint-paths.js";
 import { renderGroupVisionNoteTemplate, slugifyPathPart } from "../../lib/group-note-template.js";
 import { type BlueprintOutput } from "../compose/compose.types.js";
 import { type DeterministicBlueprintRefreshResult } from "../refresh/refresh.types.js";
@@ -84,7 +85,7 @@ export class GroupUpdateApplier {
   }
 
   private groupDocsPath(groupId: string): string {
-    return `blueprint/groups/${slugifyPathPart(groupId)}.md`;
+    return groupDocsRelativePath(slugifyPathPart(groupId));
   }
 
   private async writeGroupTemplate(
@@ -93,7 +94,7 @@ export class GroupUpdateApplier {
     groupName: string,
     docsPath: string,
   ): Promise<void> {
-    await mkdir(join(projectRoot, "blueprint", "groups"), { recursive: true });
+    await mkdir(groupDocsDir(projectRoot), { recursive: true });
     await writeFile(
       join(projectRoot, docsPath),
       renderGroupVisionNoteTemplate({

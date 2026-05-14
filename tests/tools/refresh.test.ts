@@ -69,21 +69,21 @@ function createBlueprintOutput(): BlueprintOutput {
         id: "runtime",
         name: "Runtime",
         summary: "Runs the application and exposes public entrypoints.",
-        docsPath: "blueprint/groups/runtime.md",
+        docsPath: ".blueprint/groups/runtime.md",
         fileIds: ["file_app", "file_router"],
       },
       {
         id: "legacy",
         name: "Legacy Tools",
         summary: "Contains old compatibility tools.",
-        docsPath: "blueprint/groups/legacy.md",
+        docsPath: ".blueprint/groups/legacy.md",
         fileIds: ["file_legacy"],
       },
       {
         id: "tests",
         name: "Tests",
         summary: "Covers runtime and refresh behavior.",
-        docsPath: "blueprint/groups/tests.md",
+        docsPath: ".blueprint/groups/tests.md",
         fileIds: ["file_app_test"],
       },
     ],
@@ -268,7 +268,7 @@ function baselineScan(): ScannedBlueprintFile[] {
 async function writeRefreshHandleFixture(root: string): Promise<void> {
   await mkdir(join(root, "src", "legacy"), { recursive: true });
   await mkdir(join(root, "tests"), { recursive: true });
-  await mkdir(join(root, "blueprint"), { recursive: true });
+  await mkdir(join(root, ".blueprint"), { recursive: true });
 
   const appV2 = "export const app = 'v2';\n";
   const router = "export const router = true;\n";
@@ -288,12 +288,12 @@ async function writeRefreshHandleFixture(root: string): Promise<void> {
   ];
 
   await writeFile(
-    join(root, "blueprint", "blueprint-output.json"),
+    join(root, ".blueprint", "blueprint-output.json"),
     JSON.stringify(createBlueprintOutput(), null, 2),
     "utf-8",
   );
   await writeFile(
-    join(root, "blueprint", "refresh-scan.json"),
+    join(root, ".blueprint", "refresh-scan.json"),
     JSON.stringify(previousScan, null, 2),
     "utf-8",
   );
@@ -347,27 +347,27 @@ describe("RefreshTool handle", () => {
     expect(result.maintenancePrompt).not.toContain("diff --git");
     expect(result.maintenancePrompt).not.toContain("rawDiff");
     expect(result.written).toEqual({
-      blueprintOutputPath: "blueprint/blueprint-output.json",
-      refreshScanPath: "blueprint/refresh-scan.json",
+      blueprintOutputPath: ".blueprint/blueprint-output.json",
+      refreshScanPath: ".blueprint/refresh-scan.json",
     });
 
     const output = JSON.parse(
-      await readFile(join(tempRoot, "blueprint", "blueprint-output.json"), "utf-8"),
+      await readFile(join(tempRoot, ".blueprint", "blueprint-output.json"), "utf-8"),
     ) as BlueprintOutput;
     expect(output.files.find((file) => file.path === "src/new-tool.ts")?.groupId).toBe(unassignedGroupId);
     expect(output.files.map((file) => file.path)).not.toContain("src/legacy/old-tool.ts");
 
     const refreshScan = JSON.parse(
-      await readFile(join(tempRoot, "blueprint", "refresh-scan.json"), "utf-8"),
+      await readFile(join(tempRoot, ".blueprint", "refresh-scan.json"), "utf-8"),
     ) as ScannedBlueprintFile[];
     expect(refreshScan.map((file) => file.path)).toContain("src/new-tool.ts");
-    expect(refreshScan.map((file) => file.path)).not.toContain("blueprint/blueprint-output.json");
+    expect(refreshScan.map((file) => file.path)).not.toContain(".blueprint/blueprint-output.json");
   });
 
   it("supports dryRun without writing refreshed Blueprint files", async () => {
     await writeRefreshHandleFixture(tempRoot);
-    const beforeOutput = await readFile(join(tempRoot, "blueprint", "blueprint-output.json"), "utf-8");
-    const beforeScan = await readFile(join(tempRoot, "blueprint", "refresh-scan.json"), "utf-8");
+    const beforeOutput = await readFile(join(tempRoot, ".blueprint", "blueprint-output.json"), "utf-8");
+    const beforeScan = await readFile(join(tempRoot, ".blueprint", "refresh-scan.json"), "utf-8");
 
     const result = parseJsonToolResult<RefreshHandleResponse>(
       await refreshTool.handle({ projectRoot: tempRoot, dryRun: true }),
@@ -378,9 +378,9 @@ describe("RefreshTool handle", () => {
       blueprintOutputPath: "",
       refreshScanPath: "",
     });
-    await expect(readFile(join(tempRoot, "blueprint", "blueprint-output.json"), "utf-8"))
+    await expect(readFile(join(tempRoot, ".blueprint", "blueprint-output.json"), "utf-8"))
       .resolves.toBe(beforeOutput);
-    await expect(readFile(join(tempRoot, "blueprint", "refresh-scan.json"), "utf-8"))
+    await expect(readFile(join(tempRoot, ".blueprint", "refresh-scan.json"), "utf-8"))
       .resolves.toBe(beforeScan);
   });
 });
@@ -393,7 +393,7 @@ describe("RefreshTool buildPlan", () => {
       scannedFile("file_router", "src/router.ts", "hash_router_v1"),
       scannedFile("file_app_test", "tests/app.test.ts", "hash_test_v1"),
       scannedFile("file_refresh", "src/tools/refresh/index.ts", "hash_refresh_v1"),
-      scannedFile("file_generated", "blueprint/blueprint-output.json", "hash_generated"),
+      scannedFile("file_generated", ".blueprint/blueprint-output.json", "hash_generated"),
       scannedFile("file_cache", ".cache/blueprint.json", "hash_cache"),
     ];
 
@@ -430,14 +430,14 @@ describe("RefreshTool buildPlan", () => {
       "tests/app.test.ts",
     ]);
     expect(plan.ignored.map((file) => file.path)).toEqual([
-      "blueprint/blueprint-output.json",
+      ".blueprint/blueprint-output.json",
       ".cache/blueprint.json",
     ]);
     expect(plan.emptyGroupCandidates).toEqual([
       {
         groupId: "legacy",
         name: "Legacy Tools",
-        docsPath: "blueprint/groups/legacy.md",
+        docsPath: ".blueprint/groups/legacy.md",
         deletedFileIds: ["file_legacy"],
       },
     ]);
@@ -759,15 +759,15 @@ describe("GroupUpdateApplier", () => {
       id: "worker-runtime",
       name: "Worker Runtime",
       summary: "Owns background worker execution.",
-      docsPath: "blueprint/groups/worker-runtime.md",
+      docsPath: ".blueprint/groups/worker-runtime.md",
       fileIds: ["file_worker"],
     });
     expect(result.output.files.find((file) => file.id === "file_worker")?.groupId).toBe(
       "worker-runtime",
     );
-    expect(result.createdGroupDocs).toEqual(["blueprint/groups/worker-runtime.md"]);
+    expect(result.createdGroupDocs).toEqual([".blueprint/groups/worker-runtime.md"]);
     const createdGroupDoc = await readFile(
-      join(tempRoot, "blueprint/groups/worker-runtime.md"),
+      join(tempRoot, ".blueprint/groups/worker-runtime.md"),
       "utf-8",
     );
     expect(createdGroupDoc).toContain("groupId: worker-runtime");
@@ -783,7 +783,7 @@ describe("GroupUpdateApplier", () => {
   });
 
   it("deletes empty groups and removes their markdown according to the simple first policy", async () => {
-    await mkdir(join(tempRoot, "blueprint/groups"), { recursive: true });
+    await mkdir(join(tempRoot, ".blueprint/groups"), { recursive: true });
     const previous = createBlueprintOutput();
     const plan = refreshTool.buildPlan(previous, baselineScan(), [
       scannedFile("file_app", "src/app.ts", "hash_app_v1"),
@@ -803,7 +803,7 @@ describe("GroupUpdateApplier", () => {
 
     expect(result.output.groups.map((group) => group.id)).not.toContain("legacy");
     expect(result.deletedGroups).toEqual(["legacy"]);
-    expect(result.deletedGroupDocs).toEqual(["blueprint/groups/legacy.md"]);
+    expect(result.deletedGroupDocs).toEqual([".blueprint/groups/legacy.md"]);
     expect(result.output.edges).toEqual([
       {
         fromGroupId: "tests",
@@ -840,7 +840,7 @@ describe("RefreshTool formatSummary", () => {
 
 describe("GroupUpdateTool", () => {
   it("applies LLM group decisions to blueprint-output.json and returns a compact result", async () => {
-    await mkdir(join(tempRoot, "blueprint", "groups"), { recursive: true });
+    await mkdir(join(tempRoot, ".blueprint", "groups"), { recursive: true });
     const previous = createBlueprintOutput();
     const plan = refreshTool.buildPlan(previous, baselineScan(), [
       ...baselineScan(),
@@ -849,7 +849,7 @@ describe("GroupUpdateTool", () => {
     ]);
     const refreshed = refreshTool.apply(previous, plan);
     await writeFile(
-      join(tempRoot, "blueprint", "blueprint-output.json"),
+      join(tempRoot, ".blueprint", "blueprint-output.json"),
       JSON.stringify(refreshed.output, null, 2),
       "utf-8",
     );
@@ -902,38 +902,38 @@ describe("GroupUpdateTool", () => {
       createdGroups: [
         {
           id: "worker-runtime",
-          docsPath: "blueprint/groups/worker-runtime.md",
+          docsPath: ".blueprint/groups/worker-runtime.md",
           fileIds: ["file_worker"],
         },
       ],
       deletedGroups: [],
-      createdGroupDocs: ["blueprint/groups/worker-runtime.md"],
+      createdGroupDocs: [".blueprint/groups/worker-runtime.md"],
       deletedGroupDocs: [],
       written: {
-        blueprintOutputPath: "blueprint/blueprint-output.json",
-        briefPath: "blueprint/brief.md",
+        blueprintOutputPath: ".blueprint/blueprint-output.json",
+        briefPath: ".blueprint/brief.md",
       },
     });
 
     const written = JSON.parse(
-      await readFile(join(tempRoot, "blueprint", "blueprint-output.json"), "utf-8"),
+      await readFile(join(tempRoot, ".blueprint", "blueprint-output.json"), "utf-8"),
     ) as BlueprintOutput;
     expect(written.files.find((file) => file.id === "file_refresh")?.groupId).toBe("runtime");
     expect(written.files.find((file) => file.id === "file_worker")?.groupId).toBe("worker-runtime");
 
-    const brief = await readFile(join(tempRoot, "blueprint", "brief.md"), "utf-8");
+    const brief = await readFile(join(tempRoot, ".blueprint", "brief.md"), "utf-8");
     expect(brief).toContain("# Project Blueprint Brief");
     expect(brief).toContain("### Runtime");
     expect(brief).toContain("### Worker Runtime");
     expect(brief).toContain("- id: worker-runtime");
-    expect(brief).toContain("- docs: `blueprint/groups/worker-runtime.md`");
+    expect(brief).toContain("- docs: `.blueprint/groups/worker-runtime.md`");
   });
 
   it("rejects invalid decisions and does not rewrite blueprint-output.json", async () => {
-    await mkdir(join(tempRoot, "blueprint"), { recursive: true });
+    await mkdir(join(tempRoot, ".blueprint"), { recursive: true });
     const previous = createBlueprintOutput();
     await writeFile(
-      join(tempRoot, "blueprint", "blueprint-output.json"),
+      join(tempRoot, ".blueprint", "blueprint-output.json"),
       JSON.stringify(previous, null, 2),
       "utf-8",
     );
@@ -965,7 +965,7 @@ describe("GroupUpdateTool", () => {
       },
     });
     const written = JSON.parse(
-      await readFile(join(tempRoot, "blueprint", "blueprint-output.json"), "utf-8"),
+      await readFile(join(tempRoot, ".blueprint", "blueprint-output.json"), "utf-8"),
     ) as BlueprintOutput;
     expect(written).toEqual(previous);
   });

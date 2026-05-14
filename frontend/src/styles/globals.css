@@ -58,3 +58,10 @@ body {
   flex: 1;
   overflow: hidden;
 }
+
+.atlas-types-column {
+  min-width: 0;
+  height: 100vh;
+  overflow: hidden;
+  border-right: 1px solid #27272a;
+}

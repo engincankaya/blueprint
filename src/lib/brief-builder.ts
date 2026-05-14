@@ -1,5 +1,9 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { dirname, join, resolve } from "node:path";
+import { dirname, resolve } from "node:path";
+import {
+  blueprintOutputPath,
+  briefPath as resolveBriefPath,
+} from "./blueprint-paths.js";
 import { type BlueprintOutput } from "../tools/compose/compose.types.js";
 
 interface ProjectBriefResult {
@@ -10,8 +14,8 @@ interface ProjectBriefResult {
 
 export async function ensureProjectBrief(projectRoot: string): Promise<ProjectBriefResult> {
   const root = resolve(projectRoot);
-  const blueprintPath = join(root, "blueprint", "blueprint-output.json");
-  const briefPath = join(root, "blueprint", "brief.md");
+  const blueprintPath = blueprintOutputPath(root);
+  const briefPath = resolveBriefPath(root);
   const blueprint = await readBlueprintOutput(blueprintPath);
 
   if (!blueprint) {
@@ -328,11 +332,6 @@ async function readBlueprintOutput(path: string): Promise<BlueprintOutput | unde
   try {
     return JSON.parse(await readFile(path, "utf-8")) as BlueprintOutput;
   } catch {
-    const rootOutputPath = join(dirname(path), "..", "blueprint-output.json");
-    try {
-      return JSON.parse(await readFile(rootOutputPath, "utf-8")) as BlueprintOutput;
-    } catch {
-      return undefined;
-    }
+    return undefined;
   }
 }

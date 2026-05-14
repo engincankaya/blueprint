@@ -74,6 +74,7 @@ async function createDefaultIgnoreFixtureRepo(): Promise<string> {
   await mkdir(join(root, ".ruff_cache"), { recursive: true });
   await mkdir(join(root, "coverage"), { recursive: true });
   await mkdir(join(root, "htmlcov"), { recursive: true });
+  await mkdir(join(root, ".blueprint"), { recursive: true });
 
   await writeFile(join(root, ".gitignore"), "# no local ignores\n", "utf-8");
   await writeFile(join(root, "package.json"), "{\"name\":\"fixture\"}\n", "utf-8");
@@ -92,8 +93,7 @@ async function createDefaultIgnoreFixtureRepo(): Promise<string> {
   await writeFile(join(root, ".ruff_cache", "state"), "ignored\n", "utf-8");
   await writeFile(join(root, "coverage", "lcov.info"), "TN:\n", "utf-8");
   await writeFile(join(root, "htmlcov", "index.html"), "<html></html>\n", "utf-8");
-  await writeFile(join(root, "blueprint-output.json"), "{}\n", "utf-8");
-  await writeFile(join(root, "blueprint-output.json"), "{}\n", "utf-8");
+  await writeFile(join(root, ".blueprint", "blueprint-output.json"), "{}\n", "utf-8");
 
   return root;
 }
@@ -307,8 +307,7 @@ describe("FileInventoryBuilder", () => {
     expect(paths.some((path) => path.startsWith(".ruff_cache/"))).toBe(false);
     expect(paths.some((path) => path.startsWith("coverage/"))).toBe(false);
     expect(paths.some((path) => path.startsWith("htmlcov/"))).toBe(false);
-    expect(paths).not.toContain("blueprint-output.json");
-    expect(paths).not.toContain("blueprint-output.json");
+    expect(paths).not.toContain(".blueprint/blueprint-output.json");
   });
 
   it("can include default-ignored paths when explicitly requested", async () => {
@@ -337,8 +336,7 @@ describe("FileInventoryBuilder", () => {
         ".ruff_cache/state",
         "coverage/lcov.info",
         "htmlcov/index.html",
-        "blueprint-output.json",
-        "blueprint-output.json",
+        ".blueprint/blueprint-output.json",
       ]),
     );
     expect(inventory.options.includeDefaultIgnored).toBe(true);

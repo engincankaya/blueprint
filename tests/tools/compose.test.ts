@@ -478,7 +478,7 @@ describe("blueprint.compose", () => {
           {
             groupId: "docs",
             groupName: "Documentation",
-            docsPath: "blueprint/groups/docs.md",
+            docsPath: ".blueprint/groups/docs.md",
             fileIds: ["file_readme"],
             filePaths: ["README.md"],
             status: "incomplete",
@@ -486,7 +486,7 @@ describe("blueprint.compose", () => {
           {
             groupId: "runtime",
             groupName: "Runtime",
-            docsPath: "blueprint/groups/runtime.md",
+            docsPath: ".blueprint/groups/runtime.md",
             fileIds: ["file_index", "file_index_test"],
             filePaths: ["src/index.ts", "tests/index.test.ts"],
             status: "incomplete",
@@ -509,7 +509,7 @@ describe("blueprint.compose", () => {
           id: "docs",
           name: "Documentation",
           kind: "documentation",
-          docsPath: "blueprint/groups/docs.md",
+          docsPath: ".blueprint/groups/docs.md",
           fileIds: ["file_readme"],
         },
         {
@@ -517,7 +517,7 @@ describe("blueprint.compose", () => {
           name: "Runtime",
           kind: "runtime",
           summary: "Runs the application entrypoint.",
-          docsPath: "blueprint/groups/runtime.md",
+          docsPath: ".blueprint/groups/runtime.md",
           fileIds: ["file_index", "file_index_test"],
         },
       ],
@@ -637,12 +637,12 @@ describe("blueprint.compose", () => {
 
     expect(response.output.project.language).toBe("Turkish");
     const written = JSON.parse(
-      await readFile(join(rootPath, "blueprint", "blueprint-output.json"), "utf-8"),
+      await readFile(join(rootPath, ".blueprint", "blueprint-output.json"), "utf-8"),
     ) as ComposeResponse["output"];
     expect(written.project.language).toBe("Turkish");
   });
 
-  it("writes blueprint-output.json under the blueprint directory when available", async () => {
+  it("writes blueprint-output.json under the hidden .blueprint directory", async () => {
     const store = new ArtifactStore();
     const rootPath = await mkdtemp(join(tmpdir(), "blueprint-compose-"));
     const inventoryArtifactId = store.put(
@@ -660,7 +660,7 @@ describe("blueprint.compose", () => {
       await createComposeTool().handle({ groupingArtifactId }, store),
     );
     const written = JSON.parse(
-      await readFile(join(rootPath, "blueprint", "blueprint-output.json"), "utf-8"),
+      await readFile(join(rootPath, ".blueprint", "blueprint-output.json"), "utf-8"),
     );
 
     expect(written).toEqual(response.output);
@@ -704,14 +704,14 @@ describe("blueprint.compose", () => {
 
     await createComposeTool().handle({ groupingArtifactId }, store);
 
-    const brief = await readFile(join(rootPath, "blueprint", "brief.md"), "utf-8");
+    const brief = await readFile(join(rootPath, ".blueprint", "brief.md"), "utf-8");
     expect(brief).toContain("# Project Blueprint Brief");
     expect(brief).toContain("## How To Route A Task");
     expect(brief).toContain("## Group Index");
     expect(brief).toContain("### Runtime");
     expect(brief).toContain("- read when:");
     expect(brief).toContain("read when: runtime");
-    expect(brief).toContain("- docs: `blueprint/groups/runtime.md`");
+    expect(brief).toContain("- docs: `.blueprint/groups/runtime.md`");
     expect(brief).toContain("- start files:");
     expect(brief).toContain("src/index.ts - entrypoint");
     expect(brief).toContain("- entrypoints:");
@@ -739,31 +739,31 @@ describe("blueprint.compose", () => {
     await createComposeTool().handle({ groupingArtifactId }, store);
 
     await expect(readFile(
-      join(rootPath, "blueprint", "blueprint-output.json"),
+      join(rootPath, ".blueprint", "blueprint-output.json"),
       "utf-8",
     )).resolves.toContain('"schemaVersion": "blueprint.v1"');
     await expect(readFile(
-      join(rootPath, "blueprint", "brief.md"),
+      join(rootPath, ".blueprint", "brief.md"),
       "utf-8",
     )).resolves.toContain("# Project Blueprint Brief");
     await expect(readFile(
-      join(rootPath, "blueprint", "groups", "runtime.md"),
+      join(rootPath, ".blueprint", "groups", "runtime.md"),
       "utf-8",
     )).resolves.toContain("# Runtime");
     await expect(readFile(
-      join(rootPath, "blueprint", "groups", "docs.md"),
+      join(rootPath, ".blueprint", "groups", "docs.md"),
       "utf-8",
     )).resolves.toContain("# Documentation");
     for (const path of [
-      ["blueprint", "blueprint-index.md"],
-      ["blueprint", "blueprint-assistant-update.md"],
-      ["blueprint", "blueprint-lint-report.md"],
-      ["blueprint", "blueprint-log.md"],
-      ["blueprint", "files", "src-index.md"],
-      ["blueprint", "decisions", "README.md"],
-      ["blueprint", "tasks", "README.md"],
-      ["blueprint", "pitfalls", "README.md"],
-      ["blueprint", "archive", "README.md"],
+      [".blueprint", "blueprint-index.md"],
+      [".blueprint", "blueprint-assistant-update.md"],
+      [".blueprint", "blueprint-lint-report.md"],
+      [".blueprint", "blueprint-log.md"],
+      [".blueprint", "files", "src-index.md"],
+      [".blueprint", "decisions", "README.md"],
+      [".blueprint", "tasks", "README.md"],
+      [".blueprint", "pitfalls", "README.md"],
+      [".blueprint", "archive", "README.md"],
     ]) {
       await expect(readFile(join(rootPath, ...path), "utf-8")).rejects.toThrow();
     }
@@ -786,7 +786,7 @@ describe("blueprint.compose", () => {
     await createComposeTool().handle({ groupingArtifactId }, store);
 
     const groupNote = await readFile(
-      join(rootPath, "blueprint", "groups", "runtime.md"),
+      join(rootPath, ".blueprint", "groups", "runtime.md"),
       "utf-8",
     );
 
@@ -823,14 +823,14 @@ describe("blueprint.compose", () => {
   it("preserves existing Markdown vision notes instead of overwriting them", async () => {
     const store = new ArtifactStore();
     const rootPath = await mkdtemp(join(tmpdir(), "blueprint-compose-preserve-"));
-    await mkdir(join(rootPath, "blueprint", "groups"), { recursive: true });
+    await mkdir(join(rootPath, ".blueprint", "groups"), { recursive: true });
     await writeFile(
-      join(rootPath, "blueprint", "groups", "runtime.md"),
+      join(rootPath, ".blueprint", "groups", "runtime.md"),
       "# Runtime\n\nExisting group vision.\n",
       "utf-8",
     );
     await writeFile(
-      join(rootPath, "blueprint", "groups", "docs.md"),
+      join(rootPath, ".blueprint", "groups", "docs.md"),
       "# Documentation\n\nExisting docs vision.\n",
       "utf-8",
     );
@@ -850,7 +850,7 @@ describe("blueprint.compose", () => {
     );
 
     await expect(readFile(
-      join(rootPath, "blueprint", "groups", "runtime.md"),
+      join(rootPath, ".blueprint", "groups", "runtime.md"),
       "utf-8",
     )).resolves.toBe("# Runtime\n\nExisting group vision.\n");
     expect(response.assistantNextSteps[0]).toMatchObject({

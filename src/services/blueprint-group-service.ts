@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
-import { isAbsolute, join, relative, resolve } from "node:path";
+import { isAbsolute, relative, resolve } from "node:path";
+import { blueprintOutputReadCandidates } from "../lib/blueprint-paths.js";
 import { readGroupDoc } from "../lib/group-docs.js";
 import type { ParsedGroupDoc } from "../lib/group-docs.js";
 import type { BlueprintOutput } from "../tools/compose/compose.types.js";
@@ -316,10 +317,7 @@ export class BlueprintGroupService {
   }
 
   private async readBlueprintOutput(projectRoot: string): Promise<BlueprintOutput | undefined> {
-    for (const path of [
-      join(projectRoot, "blueprint", "blueprint-output.json"),
-      join(projectRoot, "blueprint-output.json"),
-    ]) {
+    for (const path of blueprintOutputReadCandidates(projectRoot)) {
       try {
         return JSON.parse(await readFile(path, "utf-8")) as BlueprintOutput;
       } catch {

@@ -56,7 +56,7 @@ function createBlueprintOutput(): BlueprintOutput {
         name: "Authentication",
         kind: "runtime",
         summary: "Owns login, session, and validation behavior.",
-        docsPath: "blueprint/groups/auth.md",
+        docsPath: ".blueprint/groups/auth.md",
         fileIds: ["file_login", "file_session"],
       },
       {
@@ -64,7 +64,7 @@ function createBlueprintOutput(): BlueprintOutput {
         name: "Billing",
         kind: "feature",
         summary: "Owns invoices and payment records.",
-        docsPath: "blueprint/groups/billing.md",
+        docsPath: ".blueprint/groups/billing.md",
         fileIds: ["file_invoice"],
       },
     ],
@@ -75,7 +75,7 @@ function createBlueprintOutput(): BlueprintOutput {
         groupId: "auth",
         category: "source",
         language: "typescript",
-        docsPath: "blueprint/files/src-auth-login.md",
+        docsPath: ".blueprint/files/src-auth-login.md",
         notesStatus: "missing",
         summary: "Handles user login validation and credential checks.",
         role: "entrypoint",
@@ -86,7 +86,7 @@ function createBlueprintOutput(): BlueprintOutput {
         groupId: "auth",
         category: "source",
         language: "typescript",
-        docsPath: "blueprint/files/src-auth-session.md",
+        docsPath: ".blueprint/files/src-auth-session.md",
         notesStatus: "missing",
         summary: "Stores authenticated user session state.",
         role: "model",
@@ -107,7 +107,7 @@ function createBlueprintOutput(): BlueprintOutput {
         groupId: "billing",
         category: "source",
         language: "typescript",
-        docsPath: "blueprint/files/src-billing-invoice.md",
+        docsPath: ".blueprint/files/src-billing-invoice.md",
         notesStatus: "missing",
         summary: "Builds invoice records.",
         role: "model",
@@ -216,7 +216,7 @@ function createRoutingBlueprintOutput(): BlueprintOutput {
       name: "Blueprint Tools",
       kind: "runtime",
       summary: "Exposes MCP tools that build and query Blueprint graph artifacts.",
-      docsPath: "blueprint/groups/tooling.md",
+      docsPath: ".blueprint/groups/tooling.md",
       fileIds: [
         "file_index",
         "file_compose",
@@ -233,7 +233,7 @@ function createRoutingBlueprintOutput(): BlueprintOutput {
       name: "Project Support",
       kind: "other",
       summary: "Contains project scripts and package metadata.",
-      docsPath: "blueprint/groups/project-support.md",
+      docsPath: ".blueprint/groups/project-support.md",
       fileIds: ["file_shebang"],
     },
   ];
@@ -244,7 +244,7 @@ function createRoutingBlueprintOutput(): BlueprintOutput {
       groupId: "tooling",
       category: "source",
       language: "typescript",
-      docsPath: "blueprint/files/src-index.md",
+      docsPath: ".blueprint/files/src-index.md",
       notesStatus: "missing",
       summary: "Registers MCP tools with Zod input schemas.",
       role: "entrypoint",
@@ -255,7 +255,7 @@ function createRoutingBlueprintOutput(): BlueprintOutput {
       groupId: "tooling",
       category: "source",
       language: "typescript",
-      docsPath: "blueprint/files/src-tools-compose.md",
+      docsPath: ".blueprint/files/src-tools-compose.md",
       notesStatus: "missing",
       summary: "Composes Blueprint JSON and Markdown docs.",
       role: "tool",
@@ -266,7 +266,7 @@ function createRoutingBlueprintOutput(): BlueprintOutput {
       groupId: "tooling",
       category: "source",
       language: "typescript",
-      docsPath: "blueprint/files/src-tools-task-context.md",
+      docsPath: ".blueprint/files/src-tools-task-context.md",
       notesStatus: "missing",
       summary: "Routes natural language tasks to relevant files, tests, and docs.",
       role: "tool",
@@ -277,7 +277,7 @@ function createRoutingBlueprintOutput(): BlueprintOutput {
       groupId: "tooling",
       category: "source",
       language: "typescript",
-      docsPath: "blueprint/files/src-tools-group.md",
+      docsPath: ".blueprint/files/src-tools-group.md",
       notesStatus: "missing",
       summary: "Applies grouping plans.",
       role: "tool",
@@ -288,7 +288,7 @@ function createRoutingBlueprintOutput(): BlueprintOutput {
       groupId: "tooling",
       category: "source",
       language: "typescript",
-      docsPath: "blueprint/files/src-tools-context.md",
+      docsPath: ".blueprint/files/src-tools-context.md",
       notesStatus: "missing",
       summary: "Builds broad project context snapshots.",
       role: "tool",
@@ -299,14 +299,14 @@ function createRoutingBlueprintOutput(): BlueprintOutput {
       groupId: "tooling",
       category: "source",
       language: "typescript",
-      docsPath: "blueprint/files/src-tools-old-find.md",
+      docsPath: ".blueprint/files/src-tools-old-find.md",
       notesStatus: "missing",
       summary: "Builds detailed find context for search results.",
       role: "tool",
     },
     {
       id: "file_task_context_doc",
-      path: "blueprint/files/src-tools-task-context.md",
+      path: ".blueprint/files/src-tools-task-context.md",
       groupId: "tooling",
       category: "documentation",
       language: "markdown",
@@ -600,7 +600,7 @@ describe("blueprint.task_context", () => {
     expect(response.relatedGroups).toContainEqual(
       expect.objectContaining({
         id: "auth",
-        docsPath: "blueprint/groups/auth.md",
+        docsPath: ".blueprint/groups/auth.md",
       }),
     );
     expect(response.relatedSymbols.map((symbol) => symbol.name)).toEqual(
@@ -616,8 +616,8 @@ describe("blueprint.task_context", () => {
     );
     expect(response.docsToRead.map((doc) => doc.path)).toEqual(
       expect.arrayContaining([
-        "blueprint/groups/auth.md",
-        "blueprint/files/src-auth-login.md",
+        ".blueprint/groups/auth.md",
+        ".blueprint/files/src-auth-login.md",
       ]),
     );
   });
@@ -672,7 +672,7 @@ describe("blueprint.task_context", () => {
       "src/tools/group.ts",
     );
     expect(response.primaryFiles.map((file) => file.path)).not.toContain(
-      "blueprint/files/src-tools-task-context.md",
+      ".blueprint/files/src-tools-task-context.md",
     );
     expect(response.relatedSymbols.map((symbol) => symbol.path)).not.toContain(
       "src/tools/group.ts",

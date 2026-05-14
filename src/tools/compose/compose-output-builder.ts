@@ -1,4 +1,5 @@
 import { slugifyPathPart } from "../../lib/group-note-template.js";
+import { groupDocsRelativePath } from "../../lib/blueprint-paths.js";
 import { type GroupingResult } from "../group/grouping.types.js";
 import { type AnalysisFacts } from "../scan/scan-code-analysis-engine.js";
 import { type FileInventory } from "../scan/scan-file-inventory-builder.js";
@@ -211,7 +212,7 @@ export class ComposeOutputBuilder {
   }
 
   private groupDocsPath(groupId: string): string {
-    return `blueprint/groups/${slugifyPathPart(groupId)}.md`;
+    return groupDocsRelativePath(slugifyPathPart(groupId));
   }
 
   private isTestPath(path: string): boolean {

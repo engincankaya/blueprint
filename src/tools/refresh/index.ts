@@ -2,8 +2,16 @@
  * Public refresh module for deterministic Blueprint diffing, patching, and summary formatting.
  */
 import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { join, resolve } from "node:path";
+import { resolve } from "node:path";
 import { ArtifactStore } from "../../lib/artifact-store.js";
+import {
+  blueprintDir,
+  blueprintOutputPath,
+  blueprintOutputReadCandidates,
+  isBlueprintGeneratedPath,
+  refreshScanPath,
+  refreshScanReadCandidates,
+} from "../../lib/blueprint-paths.js";
 import { errorResult, jsonResult, parseJsonToolResult, type ToolResult } from "../../types.js";
 import { type BlueprintOutput } from "../compose/compose.types.js";
 import { FileInventoryBuilder, type FileInventory } from "../scan/scan-file-inventory-builder.js";
@@ -39,14 +47,14 @@ export class RefreshTool {
       const shouldReview = this.hasReviewWork(refresh);
 
       if (args.dryRun !== true) {
-        await mkdir(join(root, "blueprint"), { recursive: true });
+        await mkdir(blueprintDir(root), { recursive: true });
         await writeFile(
-          join(root, "blueprint", "blueprint-output.json"),
+          blueprintOutputPath(root),
           JSON.stringify(refresh.output, null, 2),
           "utf-8",
         );
         await writeFile(
-          join(root, "blueprint", "refresh-scan.json"),
+          refreshScanPath(root),
           JSON.stringify(currentScan, null, 2),
           "utf-8",
         );
@@ -64,8 +72,8 @@ export class RefreshTool {
           affectedGroups: refresh.affectedGroups,
         },
         written: {
-          blueprintOutputPath: args.dryRun === true ? "" : "blueprint/blueprint-output.json",
-          refreshScanPath: args.dryRun === true ? "" : "blueprint/refresh-scan.json",
+          blueprintOutputPath: args.dryRun === true ? "" : ".blueprint/blueprint-output.json",
+          refreshScanPath: args.dryRun === true ? "" : ".blueprint/refresh-scan.json",
         },
         assistantNextSteps: {
           required: shouldReview,
@@ -371,10 +379,7 @@ export class RefreshTool {
   }
 
   private async readBlueprintOutput(root: string): Promise<BlueprintOutput> {
-    for (const path of [
-      join(root, "blueprint", "blueprint-output.json"),
-      join(root, "blueprint-output.json"),
-    ]) {
+    for (const path of blueprintOutputReadCandidates(root)) {
       try {
         return JSON.parse(await readFile(path, "utf-8")) as BlueprintOutput;
       } catch {
@@ -385,15 +390,18 @@ export class RefreshTool {
   }
 
   private async readRefreshScan(root: string): Promise<ScannedBlueprintFile[]> {
-    try {
-      const raw = await readFile(join(root, "blueprint", "refresh-scan.json"), "utf-8");
-      const parsed = JSON.parse(raw) as unknown;
-      return Array.isArray(parsed)
-        ? parsed.filter(this.isScannedBlueprintFile)
-        : [];
-    } catch {
-      return [];
+    for (const path of refreshScanReadCandidates(root)) {
+      try {
+        const raw = await readFile(path, "utf-8");
+        const parsed = JSON.parse(raw) as unknown;
+        return Array.isArray(parsed)
+          ? parsed.filter(this.isScannedBlueprintFile)
+          : [];
+      } catch {
+        // Try the next supported scan location.
+      }
     }
+    return [];
   }
 
   private isScannedBlueprintFile(value: unknown): value is ScannedBlueprintFile {
@@ -415,8 +423,7 @@ export class RefreshTool {
   }
 
   private isIgnoredRefreshPath(path: string): boolean {
-    return path === "blueprint-output.json"
-      || path.startsWith("blueprint/")
+    return isBlueprintGeneratedPath(path)
       || path.startsWith(".cache/");
   }
 

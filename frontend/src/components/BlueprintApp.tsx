@@ -4,6 +4,10 @@ import { AnimatePresence, motion } from "framer-motion";
 import { BlueprintCanvas } from "@/components/blueprint/BlueprintCanvas";
 import { BlueprintExplorer } from "@/components/blueprint/BlueprintExplorer";
 import { GroupDetailPanel } from "@/components/blueprint/GroupDetailPanel";
+import {
+  createDefaultBlueprintDataSource,
+  type BlueprintDataSource,
+} from "@/lib/blueprint/data-source";
 import { cn } from "@/lib/ui/utils";
 import type {
   BlueprintGroupDetailResponse,
@@ -15,7 +19,9 @@ type Tab =
   | { id: "canvas"; type: "canvas" }
   | { id: string; type: "group"; group: BlueprintGroupOverview };
 
-export function BlueprintApp() {
+const defaultDataSource = createDefaultBlueprintDataSource();
+
+export function BlueprintApp({ dataSource = defaultDataSource }: { dataSource?: BlueprintDataSource }) {
   const [overview, setOverview] = useState<BlueprintGroupsOverviewResponse | null>(null);
   const [overviewError, setOverviewError] = useState<string | null>(null);
   const [details, setDetails] = useState<Record<string, BlueprintGroupDetailResponse>>({});
@@ -24,18 +30,16 @@ export function BlueprintApp() {
   const [activeGroupId, setActiveGroupId] = useState<string | null>(null);
   const [tabs, setTabs] = useState<Tab[]>([{ id: "canvas", type: "canvas" }]);
   const [activeTabId, setActiveTabId] = useState("canvas");
-  const [explorerOpen, setExplorerOpen] = useState(false);
+  const [explorerOpen, setExplorerOpen] = useState(true);
 
   const loadOverview = useCallback(async () => {
     try {
-      const response = await fetch("/api/blueprint/groups", { cache: "no-store" });
-      if (!response.ok) throw new Error(`Overview request failed (${response.status})`);
-      setOverview(await response.json() as BlueprintGroupsOverviewResponse);
+      setOverview(await dataSource.getOverview());
       setOverviewError(null);
     } catch (error) {
       setOverviewError(error instanceof Error ? error.message : "Overview request failed");
     }
-  }, []);
+  }, [dataSource]);
 
   const loadGroupDetail = useCallback(async (groupId: string, force = false) => {
     if (!force && (details[groupId] || detailLoading[groupId])) return;
@@ -47,9 +51,7 @@ export function BlueprintApp() {
     });
 
     try {
-      const response = await fetch(`/api/blueprint/groups/${encodeURIComponent(groupId)}`, { cache: "no-store" });
-      if (!response.ok) throw new Error(`Detail request failed (${response.status})`);
-      const detail = await response.json() as BlueprintGroupDetailResponse;
+      const detail = await dataSource.getGroup(groupId);
       setDetails((prev) => ({ ...prev, [groupId]: detail }));
     } catch (error) {
       setDetailErrors((prev) => ({
@@ -59,22 +61,21 @@ export function BlueprintApp() {
     } finally {
       setDetailLoading((prev) => ({ ...prev, [groupId]: false }));
     }
-  }, [detailLoading, details]);
+  }, [dataSource, detailLoading, details]);
 
   useEffect(() => {
     void loadOverview();
   }, [loadOverview]);
 
   useEffect(() => {
-    const events = new EventSource("/api/blueprint/events");
-    events.addEventListener("blueprint-changed", () => {
+    if (!dataSource.subscribe) return undefined;
+    return dataSource.subscribe(() => {
       void loadOverview();
       for (const tab of tabs) {
         if (tab.type === "group") void loadGroupDetail(tab.group.id, true);
       }
     });
-    return () => events.close();
-  }, [loadGroupDetail, loadOverview, tabs]);
+  }, [dataSource, loadGroupDetail, loadOverview, tabs]);
 
   function openGroup(group: BlueprintGroupOverview) {
     const tabId = `group-${group.id}`;

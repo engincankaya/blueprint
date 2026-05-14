@@ -64,7 +64,8 @@ async function createDefaultIgnoreFixtureRepo(): Promise<string> {
   );
   await writeFile(join(root, "dist", "bundle.js"), "ignored();\n", "utf-8");
   await writeFile(join(root, "node_modules", "pkg", "index.js"), "ignored();\n", "utf-8");
-  await writeFile(join(root, "blueprint-output.json"), "{}\n", "utf-8");
+  await mkdir(join(root, ".blueprint"), { recursive: true });
+  await writeFile(join(root, ".blueprint", "blueprint-output.json"), "{}\n", "utf-8");
   return root;
 }
 
@@ -106,7 +107,7 @@ describe("blueprint.scan", () => {
     const defaultInventory = store.get(defaultResponse.inventoryArtifactId);
     expect(JSON.stringify(defaultInventory?.data)).not.toContain("dist/bundle.js");
     expect(JSON.stringify(defaultInventory?.data)).not.toContain("node_modules/pkg/index.js");
-    expect(JSON.stringify(defaultInventory?.data)).not.toContain("blueprint-output.json");
+    expect(JSON.stringify(defaultInventory?.data)).not.toContain(".blueprint/blueprint-output.json");
 
     const overrideStore = new ArtifactStore();
     const overrideResponse = parseJsonToolResult<ScanResponse>(
@@ -115,6 +116,6 @@ describe("blueprint.scan", () => {
     const overrideInventory = overrideStore.get(overrideResponse.inventoryArtifactId);
     expect(JSON.stringify(overrideInventory?.data)).toContain("dist/bundle.js");
     expect(JSON.stringify(overrideInventory?.data)).toContain("node_modules/pkg/index.js");
-    expect(JSON.stringify(overrideInventory?.data)).toContain("blueprint-output.json");
+    expect(JSON.stringify(overrideInventory?.data)).toContain(".blueprint/blueprint-output.json");
   });
 });

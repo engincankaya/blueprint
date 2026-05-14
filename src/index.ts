@@ -145,7 +145,7 @@ server.registerTool(
       "or rewriting blueprint-output.json manually. Validation rules: assignments[].fileId must refer to a file whose groupId is \"__unassigned__\"; " +
       "assignments[].groupId must be an existing group id; newGroups[].id must not already exist; " +
       "newGroups[].fileIds must all be unassigned file ids; deleteGroups[] may only contain groups with no fileIds. " +
-      "The tool writes blueprint/blueprint-output.json and creates group markdown templates for new groups.",
+      "The tool writes .blueprint/blueprint-output.json and creates group markdown templates for new groups.",
     inputSchema: {
       projectRoot: z.string().describe("Absolute path to the project root"),
       decision: z.object({
@@ -171,8 +171,8 @@ server.registerTool(
   {
     title: "Refresh Blueprint Deterministically",
     description:
-      "Deterministically refresh blueprint/blueprint-output.json from the current filesystem snapshot. " +
-      "The tool compares blueprint/refresh-scan.json with a fresh full scan, writes refreshed Blueprint JSON and scan state, " +
+      "Deterministically refresh .blueprint/blueprint-output.json from the current filesystem snapshot. " +
+      "The tool compares .blueprint/refresh-scan.json with a fresh full scan, writes refreshed Blueprint JSON and scan state, " +
       "and returns the maintenance prompt the assistant should follow. It does not send raw git diffs to the assistant. " +
       "Use blueprint.group.update afterwards only for unassigned files or empty group decisions, then update affected group Markdown docs.",
     inputSchema: {

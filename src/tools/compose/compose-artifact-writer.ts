@@ -1,5 +1,10 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
+import {
+  blueprintOutputPath,
+  briefPath,
+} from "../../lib/blueprint-paths.js";
+import { patchAgentsInstructions } from "../../lib/agent-instructions.js";
 import { writeProjectBrief } from "../../lib/brief-builder.js";
 import { renderGroupVisionNoteTemplate } from "../../lib/group-note-template.js";
 import {
@@ -7,18 +12,15 @@ import {
   type ComposeAssistantNextStep,
 } from "./compose.types.js";
 
-const blueprintOutputDir = "blueprint";
-const blueprintOutputFileName = "blueprint-output.json";
-const briefFileName = "brief.md";
-
 export class ComposeArtifactWriter {
   async write(rootPath: string, output: BlueprintOutput): Promise<void> {
-    const writePath = this.blueprintOutputPath(rootPath);
+    const writePath = blueprintOutputPath(rootPath);
     const json = `${JSON.stringify(output, null, 2)}\n`;
     await mkdir(dirname(writePath), { recursive: true });
     await writeFile(writePath, json, "utf-8");
-    await writeProjectBrief(this.blueprintSupportPath(rootPath, briefFileName), output);
+    await writeProjectBrief(briefPath(rootPath), output);
     await this.writeGroupNotes(rootPath, output);
+    await patchAgentsInstructions(rootPath);
   }
 
   async buildAssistantNextSteps(
@@ -54,10 +56,10 @@ export class ComposeArtifactWriter {
         : "Group markdown files look hydrated. No group-doc hydration sub-agents are required.",
       parallelization: "one-sub-agent-per-group-doc",
       rules: [
-        "Each sub-agent owns exactly one blueprint/groups/*.md file.",
+        "Each sub-agent owns exactly one .blueprint/groups/*.md file.",
         "Each sub-agent may edit only its assigned group markdown file.",
         "Preserve the existing markdown headings.",
-        "Read blueprint/blueprint-output.json and the target group's related files as needed.",
+        "Read .blueprint/blueprint-output.json and the target group's related files as needed.",
         "Replace TODOs with concise, evidence-based project memory.",
         "Do not copy raw JSON dumps into markdown.",
         "Put uncertainty under Extension / Open Questions.",
@@ -101,13 +103,5 @@ export class ComposeArtifactWriter {
     } catch {
       return "missing";
     }
-  }
-
-  private blueprintSupportPath(rootPath: string, fileName: string): string {
-    return join(rootPath, blueprintOutputDir, fileName);
-  }
-
-  private blueprintOutputPath(rootPath: string): string {
-    return this.blueprintSupportPath(rootPath, blueprintOutputFileName);
   }
 }

@@ -107,10 +107,8 @@ export class FileInventoryBuilder {
     "**/.ruff_cache/**",
     "**/coverage/**",
     "**/htmlcov/**",
-    "blueprint-output.json",
-    "**/blueprint-output.json",
     "**/.env/**",
-    "**/blueprint/**",
+    "**/.blueprint/**",
   ];
 
   private readonly extensionLanguageMap: Record<string, string> = {

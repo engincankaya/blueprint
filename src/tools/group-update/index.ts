@@ -2,7 +2,11 @@
  * Public blueprint.group.update tool for applying reviewed grouping decisions after refresh.
  */
 import { readFile, writeFile } from "node:fs/promises";
-import { join } from "node:path";
+import {
+  blueprintOutputPath,
+  briefPath,
+  groupDocsRelativePath,
+} from "../../lib/blueprint-paths.js";
 import { writeProjectBrief } from "../../lib/brief-builder.js";
 import { slugifyPathPart } from "../../lib/group-note-template.js";
 import { jsonResult, type ToolResult } from "../../types.js";
@@ -22,7 +26,7 @@ export class GroupUpdateTool {
   ) {}
 
   async handle(args: GroupUpdateArgs): Promise<ToolResult> {
-    const blueprintPath = join(args.projectRoot, "blueprint", "blueprint-output.json");
+    const blueprintPath = blueprintOutputPath(args.projectRoot);
     const output = JSON.parse(await readFile(blueprintPath, "utf-8")) as BlueprintOutput;
     const refresh = this.buildReviewStateFromOutput(output);
     const validation = this.validator.validate(output, refresh, args.decision);
@@ -42,7 +46,7 @@ export class GroupUpdateTool {
     );
     await writeFile(blueprintPath, JSON.stringify(applied.output, null, 2), "utf-8");
     await writeProjectBrief(
-      join(args.projectRoot, "blueprint", "brief.md"),
+      briefPath(args.projectRoot),
       applied.output,
     );
 
@@ -59,8 +63,8 @@ export class GroupUpdateTool {
       createdGroupDocs: applied.createdGroupDocs,
       deletedGroupDocs: applied.deletedGroupDocs,
       written: {
-        blueprintOutputPath: "blueprint/blueprint-output.json",
-        briefPath: "blueprint/brief.md",
+        blueprintOutputPath: ".blueprint/blueprint-output.json",
+        briefPath: ".blueprint/brief.md",
       },
     });
   }
@@ -125,6 +129,6 @@ export class GroupUpdateTool {
   }
 
   private groupDocsPath(groupId: string): string {
-    return `blueprint/groups/${slugifyPathPart(groupId)}.md`;
+    return groupDocsRelativePath(slugifyPathPart(groupId));
   }
 }
